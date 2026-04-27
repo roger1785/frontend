@@ -1,0 +1,404 @@
+# Backend Products y Auth para React
+
+API REST simple con autenticación JWT y CRUD de productos.
+
+## Base URL
+
+`http://localhost:3000`
+
+Nota: si defines `PORT` en variables de entorno, usa ese puerto.
+
+## Headers útiles
+
+- `Content-Type: application/json`
+- `Authorization: Bearer <token>` (solo rutas protegidas)
+
+## Endpoints
+
+### Auth
+
+#### POST /auth/register
+
+Registra un nuevo usuario.
+
+Body:
+
+```json
+{
+  "email": "new.user@example.com",
+  "password": "123456"
+}
+```
+
+Respuestas:
+
+- `201 Created`
+
+```json
+{
+  "id": "67f00123456789abcdef0123",
+  "email": "new.user@example.com"
+}
+```
+
+- `400 Bad Request`
+
+```json
+{
+  "error": "Email and password required"
+}
+```
+
+```json
+{
+  "error": "Invalid email"
+}
+```
+
+```json
+{
+  "error": "Password too short"
+}
+```
+
+```json
+{
+  "error": "User already exists"
+}
+```
+
+- `500 Internal Server Error`
+
+```json
+{
+  "error": "Error creating user"
+}
+```
+
+#### POST /auth/login
+
+Autentica usuario y devuelve JWT.
+
+Body:
+
+```json
+{
+  "email": "test@example.com",
+  "password": "123456"
+}
+```
+
+Respuestas:
+
+- `200 OK`
+
+```json
+{
+  "token": "<jwt>"
+}
+```
+
+- `400 Bad Request`
+
+```json
+{
+  "error": "Email and password required"
+}
+```
+
+```json
+{
+  "error": "Invalid email"
+}
+```
+
+```json
+{
+  "error": "Invalid credentials"
+}
+```
+
+- `500 Internal Server Error`
+
+```json
+{
+  "error": "Error logging in"
+}
+```
+
+#### GET /auth/profile
+
+Devuelve perfil del usuario autenticado.
+
+Header requerido:
+
+`Authorization: Bearer <token>`
+
+Respuestas:
+
+- `200 OK`
+
+```json
+{
+  "_id": "67f00123456789abcdef0123",
+  "email": "test@example.com",
+  "createdAt": "2026-04-04T12:00:00.000Z",
+  "updatedAt": "2026-04-04T12:00:00.000Z"
+}
+```
+
+- `401 Unauthorized`
+
+```json
+{
+  "error": "No token provided"
+}
+```
+
+```json
+{
+  "error": "Invalid token format"
+}
+```
+
+```json
+{
+  "error": "Invalid token"
+}
+```
+
+- `404 Not Found`
+
+```json
+{
+  "error": "User not found"
+}
+```
+
+- `500 Internal Server Error`
+
+```json
+{
+  "error": "Error getting profile"
+}
+```
+
+### Products
+
+#### GET /products
+
+Devuelve la lista de productos.
+
+Respuestas:
+
+- `200 OK`
+
+```json
+[
+  {
+    "_id": "67f00123456789abcdef0456",
+    "name": "Laptop",
+    "price": 1200,
+    "stock": 5,
+    "createdAt": "2026-04-04T12:00:00.000Z",
+    "updatedAt": "2026-04-04T12:00:00.000Z"
+  }
+]
+```
+
+- `500 Internal Server Error`
+
+```json
+{
+  "error": "Internal server error"
+}
+```
+
+#### GET /products/:id
+
+Devuelve un producto por id.
+
+Respuestas:
+
+- `200 OK`
+- `400 Bad Request`
+
+```json
+{
+  "error": "Invalid product id"
+}
+```
+
+- `404 Not Found`
+
+```json
+{
+  "error": "Product not found"
+}
+```
+
+- `500 Internal Server Error`
+
+```json
+{
+  "error": "Internal server error"
+}
+```
+
+#### POST /products
+
+Crea un nuevo producto (ruta protegida).
+
+Header requerido:
+
+`Authorization: Bearer <token>`
+
+Body:
+
+```json
+{
+  "name": "Keyboard",
+  "price": 50,
+  "stock": 10
+}
+```
+
+Respuestas:
+
+- `201 Created`
+- `401 Unauthorized`
+
+```json
+{
+  "error": "No token provided"
+}
+```
+
+```json
+{
+  "error": "Invalid token format"
+}
+```
+
+```json
+{
+  "error": "Invalid token"
+}
+```
+
+- `400 Bad Request`
+
+```json
+{
+  "error": "Invalid product data"
+}
+```
+
+- `422 Unprocessable Entity`
+
+```json
+{
+  "error": {
+    "name": {
+      "message": "Name is required"
+    }
+  }
+}
+```
+
+- `500 Internal Server Error`
+
+```json
+{
+  "error": "Internal server error"
+}
+```
+
+#### PUT /products/:id
+
+Actualiza un producto (ruta protegida).
+
+Header requerido:
+
+`Authorization: Bearer <token>`
+
+Body:
+
+```json
+{
+  "name": "Keyboard Nuevo",
+  "price": 60,
+  "stock": 8
+}
+```
+
+Respuestas:
+
+- `200 OK`
+- `401 Unauthorized`
+- `400 Bad Request`
+
+```json
+{
+  "error": "Invalid id"
+}
+```
+
+- `404 Not Found`
+
+```json
+{
+  "error": "Product not found"
+}
+```
+
+- `422 Unprocessable Entity`
+- `500 Internal Server Error`
+
+#### DELETE /products/:id
+
+Borra un producto (ruta protegida).
+
+Header requerido:
+
+`Authorization: Bearer <token>`
+
+Respuestas:
+
+- `204 No Content`
+- `401 Unauthorized`
+- `400 Bad Request`
+
+```json
+{
+  "error": "Invalid product id"
+}
+```
+
+- `404 Not Found`
+
+```json
+{
+  "error": "Product not found"
+}
+```
+
+- `500 Internal Server Error`
+
+```json
+{
+  "error": "Internal server error"
+}
+```
+
+## Errores globales
+
+Si la ruta no existe:
+
+- `404 Not Found`
+
+```json
+{
+  "error": "Not found"
+}
+```

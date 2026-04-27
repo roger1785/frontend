@@ -1,0 +1,9 @@
+body {
+  background-color: gainsboro;
+}
+
+.product-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1em;
+}
