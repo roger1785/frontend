@@ -1,17 +1,17 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 
+const initialState = {
+  name: "",
+  price: "",
+  stock: "",
+};
+
 function ProductForm({ products, loadProducts }) {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const isEdit = Boolean(id);
-
-  const initialState = {
-    name: "",
-    price: "",
-    stock: "",
-  };
 
   const [form, setForm] = useState(initialState);
   const [error, setError] = useState(null);
@@ -106,16 +106,31 @@ function ProductForm({ products, loadProducts }) {
     }
 
     try {
+      const token = localStorage.getItem("token");
+
       const response = await fetch(url, {
         method: method,
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(productData),
       });
 
+      const data = await response.json();
+
+      if (response.status == 401) {
+        localStorage.removeItem("token");
+
+        navigate("/login");
+
+        return;
+      }
+
       if (!response.ok) {
-        throw new Error(`Error al ${isEdit ? `editar` : `crear`} el producto`);
+        throw new Error(
+          data.error || `Error al ${isEdit ? `editar` : `crear`} el producto`,
+        );
       }
 
       await loadProducts();

@@ -1,17 +1,17 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 
+const initialState = {
+  name: "",
+  price: "",
+  stock: "",
+};
+
 function ProductForm({ products, loadProducts }) {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const isEdit = Boolean(id);
-
-  const initialState = {
-    name: "",
-    price: "",
-    stock: "",
-  };
 
   const [form, setForm] = useState(initialState);
   const [error, setError] = useState(null);

@@ -1,17 +1,21 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { createProduct, updateProduct } from "../services/ProductService";
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+
+const initialState = {
+  name: "",
+  price: "",
+  stock: "",
+};
 
 function ProductForm({ products, loadProducts }) {
+  const { logout } = useContext(AuthContext);
   const { id } = useParams();
   const navigate = useNavigate();
 
   const isEdit = Boolean(id);
-
-  const initialState = {
-    name: "",
-    price: "",
-    stock: "",
-  };
 
   const [form, setForm] = useState(initialState);
   const [error, setError] = useState(null);
@@ -94,36 +98,25 @@ function ProductForm({ products, loadProducts }) {
       stock: Number(form.stock),
     };
 
-    let url;
-    let method;
-
-    if (isEdit) {
-      url = `http://localhost:3000/products/${id}`;
-      method = "PUT";
-    } else {
-      url = "http://localhost:3000/products";
-      method = "POST";
-    }
-
     try {
-      const response = await fetch(url, {
-        method: method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(productData),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error al ${isEdit ? `editar` : `crear`} el producto`);
+      if (isEdit) {
+        await updateProduct(productData, id);
+      } else {
+        await createProduct(productData);
       }
 
       await loadProducts();
-
       setForm(initialState);
-
       navigate("/");
     } catch (error) {
+      if (error.status == 401) {
+        logout();
+
+        navigate("/login");
+
+        return;
+      }
+
       setError(error.message);
     } finally {
       setSaving(false);
@@ -175,7 +168,7 @@ function ProductForm({ products, loadProducts }) {
         {error && <p className="error">{error}</p>}
 
         <div className="form-actions">
-          <button type="submit">
+          <button type="submit" disabled={isDisabled}>
             {saving && (isEdit ? "Editando" : "Creando")}
             {!saving && (isEdit ? "Editar" : "Crear")} producto
           </button>
