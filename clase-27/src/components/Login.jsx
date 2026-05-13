@@ -90,11 +90,11 @@ function Login() {
     }
   }, [success]);
 
-  useEffect(() => {
-    if (user) {
-      navigate("/");
-    }
-  }, [authLoading]);
+  // useEffect(() => {
+  //   if (user) {
+  //     navigate("/");
+  //   }
+  // }, [authLoading]);
 
   const isDisabled = !form.email || !form.password || loading;
 

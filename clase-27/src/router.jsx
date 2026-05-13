@@ -1,4 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
+import { requireAuth } from "./loaders/requireAuth";
 
 import Home from "./components/Home";
 import Login from "./components/Login";
@@ -29,14 +30,17 @@ export const router = createBrowserRouter([
       },
       {
         path: "/profile",
+        loader: requireAuth,
         element: <Profile />,
       },
       {
         path: "/products/new",
+        loader: requireAuth,
         element: <ProductForm />,
       },
       {
         path: "/products/:id/edit",
+        loader: requireAuth,
         element: <ProductForm />,
       },
       {
