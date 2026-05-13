@@ -1,10 +1,6 @@
-import { useState, useEffect } from "react";
-import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
-import { getProfile, loginUser } from "../services/AuthService";
-import { useNavigate } from "react-router-dom";
-
-import { useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
+import { useEffect, useState } from "react";
+import { UserPlusIcon } from "@heroicons/react/24/outline";
+import { registerUser } from "../services/AuthService";
 
 const initialState = {
   email: "",
@@ -13,14 +9,11 @@ const initialState = {
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-function Login() {
-  const { user, login, authLoading } = useContext(AuthContext);
-  const navigate = useNavigate();
+function Register() {
   const [form, setForm] = useState(initialState);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -58,8 +51,7 @@ function Login() {
       return;
     }
 
-    setError(null);
-    setLoading(true);
+    setSaving(true);
 
     const user = {
       email: form.email.trim(),
@@ -67,19 +59,15 @@ function Login() {
     };
 
     try {
-      const data = await loginUser(user);
-
-      login(data.user, data.token);
+      await registerUser(user)
 
       setError(null);
-      setSuccess("Se inicio la session correctamente");
+      setSuccess("Cuenta creada correctamente");
       setForm(initialState);
-
-      navigate("/");
     } catch (error) {
       setError(error.message);
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
@@ -91,24 +79,15 @@ function Login() {
     }
   }, [success]);
 
-  useEffect(() => {
-    if (user) {
-      navigate("/");
-    }
-  }, [authLoading]);
-
-  const isDisabled = !form.email || !form.password || loading;
-
-  if (authLoading) {
-    return <p>Verificando usuario...</p>;
-  }
+  const isDisabled = !form.email || !form.password || saving;
 
   return (
     <section className="auth-section">
-      <div className="auth-title">
-        <h2>Iniciar sección</h2>
-      </div>
-      <p>Iniciar sección para poder acceder a la aplicación.</p>
+      <h2 className="auth-title">
+        <UserPlusIcon className="icon" />
+        Crear cuenta
+      </h2>
+      <p>Regístrate para poder acceder a la aplicación.</p>
 
       {success && <p className="success">{success}</p>}
 
@@ -126,37 +105,23 @@ function Login() {
 
         <div className="form-group">
           <label htmlFor="password">Contraseña: </label>
-
-          <div className="password-wrapper">
-            <input
-              type={showPassword ? "text" : "password"}
-              name="password"
-              id="password"
-              value={form.password}
-              onChange={handleChange}
-            />
-
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? (
-                <EyeSlashIcon className="icon" />
-              ) : (
-                <EyeIcon className="icon" />
-              )}
-            </button>
-          </div>
+          <input
+            type="password"
+            name="password"
+            id="password"
+            value={form.password}
+            onChange={handleChange}
+          />
         </div>
 
         {error && <p className="error">{error}</p>}
 
         <button type="submit" disabled={isDisabled}>
-          {loading ? "Iniciando sesión" : "Iniciar sesión"}
+          Crear cuenta
         </button>
       </form>
     </section>
   );
 }
 
-export default Login;
+export default Register;

@@ -12,7 +12,7 @@ import {
 
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 
-router.post("/", createProduct);
+router.post("/", authMiddleware, createProduct);
 router.get("/", getProducts);
 router.get("/:id", getProductById);
 router.put("/:id", authMiddleware, updateProduct);

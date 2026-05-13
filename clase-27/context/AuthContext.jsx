@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { createContext, useState } from "react";
-import { getProfile } from "../services/AuthService";
+import { getProfile } from "../src/services/AuthService";
 
 export const AuthContext = createContext();
 
@@ -11,11 +11,6 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem("token");
     setUser(null);
-  };
-
-  const login = (user, token) => {
-    localStorage.setItem("token", token);
-    setUser(user);
   };
 
   useEffect(() => {
@@ -29,29 +24,21 @@ export const AuthProvider = ({ children }) => {
 
       try {
         const data = await getProfile();
-
         setUser(data);
-      } catch {
+        console.log(data);
+      } catch (error) {
         localStorage.removeItem("token");
         setUser(null);
+        console.log(error);
       } finally {
         setAuthLoading(false);
       }
     }
-
     verifyUser();
   }, []);
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        setUser,
-        authLoading,
-        logout,
-        login,
-      }}
-    >
+    <AuthContext.Provider value={{ user, setUser, authLoading, logout }}>
       {children}
     </AuthContext.Provider>
   );

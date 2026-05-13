@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
-import { getProfile, loginUser } from "../services/AuthService";
+import { loginUser } from "../services/AuthService";
 import { useNavigate } from "react-router-dom";
 
-import { useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 
 const initialState = {
   email: "",
@@ -14,7 +13,7 @@ const initialState = {
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function Login() {
-  const { user, login, authLoading } = useContext(AuthContext);
+  const { user, login, authLoading } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState(initialState);
   const [error, setError] = useState(null);
